@@ -130,3 +130,12 @@ class VideoTranscriptionApp:
         clear_button.grid(row=0, column=3, padx=5, pady=5)
         exit_button = ttk.Button(buttons_frame, text="Exit", command=self.root.destroy)
         exit_button.grid(row=0, column=4, padx=5, pady=5)
+
+    def browse_file(self):
+        filetypes = [
+            ("Video files", "*.mp4 *.avi *.mov *.mkv *.wmv *.flv *.webm"),
+            ("All files", "*.*"),
+        ]
+        file_path = filedialog.askopenfilename(title="Select a video file", filetypes=filetypes)
+        if file_path:
+            self.file_path_var.set(file_path)
