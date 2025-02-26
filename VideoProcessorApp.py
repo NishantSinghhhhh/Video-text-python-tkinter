@@ -139,3 +139,24 @@ class VideoTranscriptionApp:
         file_path = filedialog.askopenfilename(title="Select a video file", filetypes=filetypes)
         if file_path:
             self.file_path_var.set(file_path)
+
+    def process_video(self):
+            video_path = self.file_path_var.get()
+            if not video_path:
+                messagebox.showwarning("Warning", "Please select a video file first.")
+                return
+            if not os.path.exists(video_path):
+                messagebox.showerror("Error", "The selected file does not exist.")
+                return
+            if self.is_processing:
+                messagebox.showinfo("Processing", "A transcription is already in progress. Please wait.")
+                return
+            self.is_processing = True
+            self.process_button.config(state=tk.DISABLED)
+            self.transcribe_button.config(state=tk.DISABLED)
+            self.status_var.set("Processing video...")
+            self.transcript_text.delete("1.0", tk.END)
+            self.processed_text.delete("1.0", tk.END)
+            self.progress_var.set(0)
+            self.current_task = threading.Thread(target=self.run_transcription, args=(video_path,), daemon=True)
+            self.current_task.start()            
