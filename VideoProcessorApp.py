@@ -160,3 +160,30 @@ class VideoTranscriptionApp:
             self.progress_var.set(0)
             self.current_task = threading.Thread(target=self.run_transcription, args=(video_path,), daemon=True)
             self.current_task.start()            
+
+    def run_transcription(self, video_path):
+            try:
+                start_time = time.strftime("%H:%M:%S")  # Record transcription start time
+                self.update_status("Converting video to audio...", 10)
+                audio_path = self.extract_audio(video_path)
+                if not audio_path:
+                    raise Exception("Failed to extract audio from video.")
+                self.update_status("Transcribing audio...", 30)
+                transcript = self.transcribe_audio(audio_path)
+                if not transcript:
+                    raise Exception("Failed to transcribe audio.")
+                end_time = time.strftime("%H:%M:%S")  # Record transcription end time
+                self.update_status("Displaying results...", 90)
+                self.display_transcript(transcript, start_time, end_time)
+                self.update_status("Transcription Complete.", 100)
+                if os.path.exists(audio_path):
+                    os.remove(audio_path)
+            except Exception as e:
+                error_message = str(e)
+                self.log_error(f"Transcription failed: {error_message}", include_traceback=True)
+                messagebox.showerror("Error", error_message)
+                self.update_status("Failed: " + error_message, 0)
+            finally:
+                self.is_processing = False
+                self.process_button.config(state=tk.NORMAL)
+                self.transcribe_button.config(state=tk.NORMAL)
