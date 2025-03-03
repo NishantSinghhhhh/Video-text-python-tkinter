@@ -172,12 +172,12 @@ class VideoTranscriptionApp:
                 transcript = self.transcribe_audio(audio_path)
                 if not transcript:
                     raise Exception("Failed to transcribe audio.")
-                end_time = time.strftime("%H:%M:%S")  # Record transcription end time
-                self.update_status("Displaying results...", 90)
-                self.display_transcript(transcript, start_time, end_time)
-                self.update_status("Transcription Complete.", 100)
-                if os.path.exists(audio_path):
-                    os.remove(audio_path)
+                # end_time = time.strftime("%H:%M:%S")  # Record transcription end time
+                # self.update_status("Displaying results...", 90)
+                # self.display_transcript(transcript, start_time, end_time)
+                # self.update_status("Transcription Complete.", 100)
+                # if os.path.exists(audio_path):
+                #     os.remove(audio_path)
             except Exception as e:
                 error_message = str(e)
                 self.log_error(f"Transcription failed: {error_message}", include_traceback=True)
