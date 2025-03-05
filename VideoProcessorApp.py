@@ -187,3 +187,14 @@ class VideoTranscriptionApp:
                 self.is_processing = False
                 self.process_button.config(state=tk.NORMAL)
                 self.transcribe_button.config(state=tk.NORMAL)
+
+    def extract_audio(self, video_path):
+            try:
+                temp_audio = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+                temp_audio.close()
+                audio = AudioSegment.from_file(video_path, format="mp4")
+                audio.export(temp_audio.name, format="mp3")
+            except Exception as e:
+                print(f"No audio found in {video_path}: {e}")
+                return None
+            return temp_audio.name
