@@ -198,3 +198,32 @@ class VideoTranscriptionApp:
                 print(f"No audio found in {video_path}: {e}")
                 return None
             return temp_audio.name
+    
+
+    def transcribe_audio(self, file_path):
+        """
+        Sends the local audio file to OpenAI's Whisper API for transcription
+        and returns the transcription result (as a dict). The verbose_json format
+        includes segments with timestamps.
+        """
+        self.log_error("Starting transcription with OpenAI...", include_traceback=False)
+        url = "https://api.openai.com/v1/audio/transcriptions"
+        headers = {
+            "Authorization": f"Bearer {self.openai_api_key}"
+        }
+        data = {
+            "model": "whisper-1",
+            "response_format": "verbose_json"  # Request a response that includes timestamps
+        }
+        try:
+            with open(file_path, "rb") as audio_file:
+                files = {"file": audio_file}
+                response = requests.post(url, headers=headers, data=data, files=files)
+            response.raise_for_status()
+            self.log_error("Transcription completed successfully.", include_traceback=False)
+            result = response.json()
+            self.log_error(f"Transcription result: {result}", include_traceback=False)
+            return result  # Expecting a dict that includes 'text' and 'segments'
+        except Exception as e:
+            self.log_error(f"Error transcribing audio with OpenAI: {e}", include_traceback=True)
+            return None
