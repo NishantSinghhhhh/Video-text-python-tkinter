@@ -227,3 +227,25 @@ class VideoTranscriptionApp:
         except Exception as e:
             self.log_error(f"Error transcribing audio with OpenAI: {e}", include_traceback=True)
             return None
+
+    def display_transcript(self, transcript_data, start_time, end_time):
+            if not transcript_data:
+                self.update_transcript("No transcript data available.")
+                return
+            processed_text = transcript_data.get('text', '')
+            self.update_processed(processed_text)
+            # Header information with overall start and end times
+            final_text = f"Transcription started at: {start_time}\nTranscription ended at: {end_time}\n\n"
+
+            segments = transcript_data.get('segments', [])
+            if segments:
+                for segment in segments:
+                    start = self.format_time(segment.get('start', 0))
+                    end = self.format_time(segment.get('end', 0))
+                    # Simply output the timestamp and text exactly as received
+                    final_text += f"{start}-{end} {segment.get('text', '').strip()}\n"
+            else:
+                # If segments aren't provided, just show the complete text
+                final_text += transcript_data.get('text', '')
+                
+            self.update_transcript(final_text)
