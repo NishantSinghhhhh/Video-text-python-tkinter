@@ -249,3 +249,38 @@ class VideoTranscriptionApp:
                 final_text += transcript_data.get('text', '')
                 
             self.update_transcript(final_text)
+
+    def format_time(self, seconds):
+            """Convert seconds (float) to HH:MM:SS format."""
+            seconds = int(seconds)
+            h = seconds // 3600
+            m = (seconds % 3600) // 60
+            s = seconds % 60
+            return f"{h:02}:{m:02}:{s:02}"
+
+    def update_processed(self, text, append=False):
+        if not append:
+            self.processed_text.delete("1.0", tk.END)
+        self.processed_text.insert(tk.END, text)
+        self.processed_text.see(tk.END)
+        self.root.update_idletasks()
+
+    def update_transcript(self, text, append=False):
+        if not append:
+            self.transcript_text.delete("1.0", tk.END)
+        self.transcript_text.insert(tk.END, text)
+        self.transcript_text.see(tk.END)
+        self.root.update_idletasks()
+
+    def update_status(self, message, progress=None):
+        self.status_var.set(message)
+        if progress is not None:
+            self.progress_var.set(progress)
+        self.root.update_idletasks()
+
+    def log_error(self, message, include_traceback=False):
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        error_entry = f"[{timestamp}] {message}\n"
+        if include_traceback:
+            error_entry += f"Traceback:\n{traceback.format_exc()}\n"
+        print(error_entry)
