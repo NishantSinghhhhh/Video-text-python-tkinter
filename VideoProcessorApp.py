@@ -284,3 +284,74 @@ class VideoTranscriptionApp:
         if include_traceback:
             error_entry += f"Traceback:\n{traceback.format_exc()}\n"
         print(error_entry)
+
+    def save_transcript(self):
+            transcript = self.transcript_text.get("1.0", tk.END).strip()
+            if not transcript:
+                messagebox.showinfo("Nothing to Save", "There is no transcript to save.")
+                return
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".txt",
+                filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+                title="Save Transcript As"
+            )
+            if file_path:
+                try:
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(transcript)
+                    messagebox.showinfo("Success", f"Transcript saved to {file_path}")
+                except Exception as e:
+                    error_msg = f"Failed to save transcript: {str(e)}"
+                    self.log_error(error_msg)
+                    messagebox.showerror("Error", error_msg)
+
+    def clear_all(self):
+        if not messagebox.askyesno("Confirm", "Clear all fields and results?"):
+            return
+        self.file_path_var.set("")
+        self.transcript_text.delete("1.0", tk.END)
+        self.error_text.delete("1.0", tk.END)
+        self.status_var.set("Ready")
+        self.progress_var.set(0)
+
+    def create_desktop_shortcut():
+        """Create a desktop shortcut for Windows."""
+        if sys.platform != "win32":
+            return
+        try:
+            import winshell
+            from win32com.client import Dispatch
+            desktop = winshell.desktop()
+            path = os.path.join(desktop, "Video Transcription Tool.lnk")
+            shell = Dispatch('WScript.Shell')
+            shortcut = shell.CreateShortCut(path)
+            shortcut.Targetpath = sys.executable
+            shortcut.Arguments = f'"{os.path.abspath(__file__)}"'
+            shortcut.WorkingDirectory = os.path.dirname(os.path.abspath(__file__))
+            shortcut.IconLocation = os.path.abspath(__file__)
+            shortcut.save()
+        except:
+            pass
+
+    def main():
+        try:
+            import tkinter
+        except ImportError:
+            if sys.platform.startswith('linux'):
+                print("tkinter is missing. Install with: sudo apt-get install python3-tk")
+            else:
+                print("tkinter is missing. Please install Python with tkinter support.")
+            sys.exit(1)
+        
+        if getattr(sys, 'frozen', False):
+            application_path = os.path.dirname(sys.executable)
+        else:
+            application_path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(application_path)
+        create_desktop_shortcut()
+        root = tk.Tk()
+        app = VideoTranscriptionApp(root)
+        root.mainloop()
+
+    if __name__ == "__main__":
+        main()
