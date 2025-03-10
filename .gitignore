@@ -1,0 +1,17 @@
+# Compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+myvenv/
+
+# Environment variables file
+.env
+
+# VSCode settings (optional)
+.vscode/
+
+# MacOS metadata (optional)
+.DS_Store
