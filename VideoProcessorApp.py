@@ -39,3 +39,94 @@ from pydub import AudioSegment
 import tempfile
 import requests
 
+
+class VideoTranscriptionApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Video Transcription Tool")
+        self.root.geometry("1900x1600")
+        self.root.resizable(True, True)
+        self.root.configure(bg="#f0f0f0")
+        
+        try:
+            self.root.iconbitmap("icon.ico")
+        except:
+            pass
+        
+        self.openai_api_key = "API_KEY"
+        
+        self.is_processing = False
+        self.current_task = None
+        self.error_log = []
+        
+        self.setup_ui()
+
+    def setup_ui(self):
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("TButton", padding=6, relief="flat", background="#3498db", foreground="black")
+        style.configure("TFrame", background="#f0f0f0")
+        style.configure("TLabelframe", background="#f0f0f0")
+        style.configure("TLabel", background="#f0f0f0")
+        
+        main_frame = ttk.Frame(self.root, padding="20 20 20 20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        title_frame = ttk.Frame(main_frame)
+        title_frame.pack(fill=tk.X, pady=(0, 20))
+        title_label = ttk.Label(title_frame, text="Video Transcription Tool", font=("Arial", 18, "bold"))
+        title_label.pack(side=tk.LEFT)
+        
+        file_frame = ttk.LabelFrame(main_frame, text="Select Video File", padding=10)
+        file_frame.pack(fill=tk.X, pady=10)
+        self.file_path_var = tk.StringVar()
+        file_entry = ttk.Entry(file_frame, textvariable=self.file_path_var, width=50)
+        file_entry.pack(side=tk.LEFT, padx=(0, 10), fill=tk.X, expand=True)
+        browse_button = ttk.Button(file_frame, text="Browse", command=self.browse_file)
+        browse_button.pack(side=tk.RIGHT)
+        
+        options_frame = ttk.LabelFrame(main_frame, text="Transcription Options", padding=10)
+        options_frame.pack(fill=tk.X, pady=10)
+        self.speaker_diarization = tk.BooleanVar(value=False)
+        speaker_check = ttk.Checkbutton(options_frame, text="Speaker Diarization", variable=self.speaker_diarization)
+        speaker_check.pack(side=tk.LEFT, padx=10)
+        self.auto_highlights = tk.BooleanVar(value=True)
+        highlights_check = ttk.Checkbutton(options_frame, text="Auto Highlights", variable=self.auto_highlights)
+        highlights_check.pack(side=tk.LEFT, padx=10)
+        self.format_text = tk.BooleanVar(value=True)
+        format_check = ttk.Checkbutton(options_frame, text="Format Text", variable=self.format_text)
+        format_check.pack(side=tk.LEFT, padx=10)
+        
+        notebook = ttk.Notebook(main_frame)
+        notebook.pack(fill=tk.BOTH, expand=True, pady=10)
+        transcript_frame = ttk.Frame(notebook, padding=10)
+        notebook.add(transcript_frame, text="Transcript")
+        self.transcript_text = scrolledtext.ScrolledText(transcript_frame, wrap=tk.WORD, height=15)
+        self.transcript_text.pack(fill=tk.BOTH, expand=True)
+        processed_frame = ttk.Frame(notebook, padding=10)
+        notebook.add(processed_frame, text="Processed Data")
+        self.processed_text = scrolledtext.ScrolledText(processed_frame, wrap=tk.WORD, height=15)
+        self.processed_text.pack(fill=tk.BOTH, expand=True)
+
+        
+        status_frame = ttk.Frame(main_frame)
+        status_frame.pack(fill=tk.X, pady=10)
+        self.status_var = tk.StringVar(value="Ready")
+        status_label = ttk.Label(status_frame, textvariable=self.status_var, anchor="w")
+        status_label.pack(side=tk.LEFT, fill=tk.X)
+        self.progress_var = tk.DoubleVar()
+        self.progress_bar = ttk.Progressbar(status_frame, variable=self.progress_var, length=200, mode="determinate")
+        self.progress_bar.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        
+        buttons_frame = ttk.Frame(main_frame)
+        buttons_frame.pack(fill=tk.X, pady=10)
+        self.transcribe_button = ttk.Button(buttons_frame, text="Transcribe", command=self.process_video)
+        self.transcribe_button.grid(row=0, column=0, padx=5, pady=5)
+        self.process_button = ttk.Button(buttons_frame, text="Transcribe Video", command=self.process_video)
+        self.process_button.grid(row=0, column=1, padx=5, pady=5)
+        save_transcript_button = ttk.Button(buttons_frame, text="Save Transcript", command=self.save_transcript)
+        save_transcript_button.grid(row=0, column=2, padx=5, pady=5)
+        clear_button = ttk.Button(buttons_frame, text="Clear", command=self.clear_all)
+        clear_button.grid(row=0, column=3, padx=5, pady=5)
+        exit_button = ttk.Button(buttons_frame, text="Exit", command=self.root.destroy)
+        exit_button.grid(row=0, column=4, padx=5, pady=5)
