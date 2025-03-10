@@ -53,7 +53,7 @@ class VideoTranscriptionApp:
         except:
             pass
         
-        self.openai_api_key = "open_api_key"
+        self.openai_api_key = "open-api"
         
         self.is_processing = False
         self.current_task = None
