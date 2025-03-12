@@ -141,6 +141,8 @@ class VideoTranscriptionApp:
         if file_path:
             self.file_path_var.set(file_path)
 
+// optimized the functions
+
     def process_video(self):
         video_path = self.file_path_var.get()
         if not video_path:
