@@ -39,6 +39,7 @@ from pydub import AudioSegment
 import tempfile
 import requests
 
+// corrected the function 
 
 class VideoTranscriptionApp:
     def __init__(self, root):
